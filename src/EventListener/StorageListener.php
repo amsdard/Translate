@@ -8,6 +8,7 @@ use Bolt\Events\StorageEvent;
 use Bolt\Events\StorageEvents;
 use Bolt\Extension\Animal\Translate\Config\Config;
 use Bolt\Storage\Entity\Content;
+use Bolt\Storage\Entity\TemplateFields;
 use Bolt\Storage\Field\Collection\RepeatingFieldCollection;
 use Bolt\Storage\Query\Query;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -233,7 +234,13 @@ class StorageListener implements EventSubscriberInterface
         foreach ($translatableFields as $field) {
             $localeValues[$field] = isset($values[$field]) ? $values[$field] : null;
             if ($values['id']) {
-                $record->set($field, $defaultContent->get($field));
+                $defaultFieldValue = $defaultContent->get($field);
+
+                if ($defaultFieldValue instanceof TemplateFields) {
+                    $defaultFieldValue = $defaultFieldValue->serialize();
+                }
+
+                $record->set($field, $defaultFieldValue);
             } else {
                 $record->set($field, '');
             }
